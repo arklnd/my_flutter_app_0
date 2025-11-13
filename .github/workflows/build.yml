@@ -28,13 +28,13 @@ jobs:
         echo "VERSION=$VERSION" >> $GITHUB_ENV
 
     - name: Build APK
-      run: flutter build apk --release --build-name ${{ env.VERSION }}
+      run: flutter build apk --release --build-name $VERSION
 
     - name: Rename APK
-      run: mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/app-release-${{ env.VERSION }}.apk
+      run: mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/app-release-$VERSION.apk
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
-        name: app-release-${{ env.VERSION }}
-        path: build/app/outputs/flutter-apk/app-release-${{ env.VERSION }}.apk
+        name: app-release-$VERSION
+        path: build/app/outputs/flutter-apk/app-release-$VERSION.apk
