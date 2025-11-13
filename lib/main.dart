@@ -43,7 +43,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return NavigationView(
-      appBar: NavigationAppBar(title: const Text('Login')),
+      appBar: NavigationAppBar(title: const Text('Login to dashboard')),
 
       content: Center(
         child: Padding(
