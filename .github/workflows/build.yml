@@ -24,6 +24,14 @@ jobs:
     - name: 📦 Get dependencies
       run: flutter pub get
 
+    - name: 🔐 Setup signing
+      run: |
+        echo "storePassword=${{ secrets.STORE_PASSWORD }}" > android/key.properties
+        echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> android/key.properties
+        echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> android/key.properties
+        echo "storeFile=app/release.keystore" >> android/key.properties
+        echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > android/app/release.keystore
+
     - name: 🏷️ Get version
       id: get_version
       run: |
