@@ -8,13 +8,6 @@ import 'package:permission_handler/permission_handler.dart';
 import 'dart:io';
 
 void main() {
-  SystemChrome.setSystemUIOverlayStyle(
-    const SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent,
-      statusBarIconBrightness: Brightness.dark,
-      statusBarBrightness: Brightness.light,
-    ),
-  );
   runApp(const MyApp());
 }
 
@@ -28,7 +21,25 @@ class MyApp extends StatelessWidget {
       theme: FluentThemeData(),
       darkTheme: FluentThemeData.dark(),
       themeMode: ThemeMode.system,
-      home: const LoginPage(),
+      home: Builder(
+        builder: (context) {
+          final brightness = MediaQuery.of(context).platformBrightness;
+          return AnnotatedRegion<SystemUiOverlayStyle>(
+            value: SystemUiOverlayStyle(
+              statusBarColor: Colors.transparent,
+              statusBarIconBrightness:
+                  brightness == Brightness.dark
+                      ? Brightness.light
+                      : Brightness.dark,
+              statusBarBrightness:
+                  brightness == Brightness.dark
+                      ? Brightness.dark
+                      : Brightness.light,
+            ),
+            child: const LoginPage(),
+          );
+        },
+      ),
     );
   }
 }
