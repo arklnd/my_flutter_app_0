@@ -28,10 +28,12 @@ jobs:
       id: get_version
       run: |
         VERSION=$(grep '^version:' pubspec.yaml | sed 's/version: //' | sed 's/+.*//')
-        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        COMMIT_HASH=$(git rev-parse --short HEAD)
+        VERSION_WITH_HASH="${VERSION}-${COMMIT_HASH}"
+        echo "version=$VERSION_WITH_HASH" >> $GITHUB_OUTPUT
 
     - name: 📱 Build APK
-      run: flutter build apk --release --build-name ${{ steps.get_version.outputs.version }}
+      run: flutter build apk --release --build-name ${{ steps.get_version.outputs.version }} --build-number ${{ github.run_number }}
 
     - name: 📝 Rename APK
       run: mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/app-release-${{ steps.get_version.outputs.version }}.apk
