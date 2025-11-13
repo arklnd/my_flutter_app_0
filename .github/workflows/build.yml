@@ -47,6 +47,15 @@ jobs:
     - name: 📝 Rename APK
       run: mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/app-release-${{ steps.get_version.outputs.version_with_hash }}_${{ github.run_number }}.apk
 
+    - name: ✔️ Check if tag exists
+      id: check_tag
+      run: |
+        if gh release view v${{ steps.get_version.outputs.version }} --json tagName > /dev/null 2>&1; then
+          echo "exists=true" >> $GITHUB_OUTPUT
+        else
+          echo "exists=false" >> $GITHUB_OUTPUT
+        fi
+
     - name: 🚀 Create GitHub Release
       if: github.event_name == 'push'
       uses: softprops/action-gh-release@v2
@@ -54,6 +63,6 @@ jobs:
         tag_name: v${{ steps.get_version.outputs.version }}
         name: Release v${{ steps.get_version.outputs.version }}
         files: build/app/outputs/flutter-apk/app-release-${{ steps.get_version.outputs.version_with_hash }}_${{ github.run_number }}.apk
-        generate_release_notes: true
+        generate_release_notes: ${{ steps.check_tag.outputs.exists == 'false' }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
