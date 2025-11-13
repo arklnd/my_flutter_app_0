@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'dart:io';
 
 void main() {
   SystemChrome.setSystemUIOverlayStyle(
@@ -119,6 +120,8 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> _checkForUpdates() async {
+    if (!Platform.isAndroid) return;
+
     // Request storage permission
     var status = await Permission.storage.request();
     if (!status.isGranted) {
