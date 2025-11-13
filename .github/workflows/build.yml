@@ -45,7 +45,11 @@ jobs:
       run: flutter build apk --release --build-name ${{ steps.get_version.outputs.version_with_hash }} --build-number ${{ github.run_number }}
 
     - name: 📝 Rename APK
-      run: mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/app-release-${{ steps.get_version.outputs.version_with_hash }}_${{ github.run_number }}.apk
+      id: rename_apk
+      run: |
+        APP_NAME_CLEAN=$(echo "${{ vars.APP_NAME }}" | tr ' ' '_')
+        mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/${APP_NAME_CLEAN}-${{ steps.get_version.outputs.version_with_hash }}_${{ github.run_number }}.apk
+        echo "app_name_clean=$APP_NAME_CLEAN" >> $GITHUB_OUTPUT
 
     - name: ✔️ Check if tag exists
       id: check_tag
@@ -62,7 +66,7 @@ jobs:
       with:
         tag_name: v${{ steps.get_version.outputs.version }}
         name: Release v${{ steps.get_version.outputs.version }}
-        files: build/app/outputs/flutter-apk/app-release-${{ steps.get_version.outputs.version_with_hash }}_${{ github.run_number }}.apk
+        files: build/app/outputs/flutter-apk/${{ steps.rename_apk.outputs.app_name_clean }}-${{ steps.get_version.outputs.version_with_hash }}_${{ github.run_number }}.apk
         generate_release_notes: ${{ steps.check_tag.outputs.exists == 'false' }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
