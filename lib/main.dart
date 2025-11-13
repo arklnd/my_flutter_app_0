@@ -23,35 +23,37 @@ class MyApp extends StatelessWidget {
       routes: {'/dashboard': (context) => const DashboardPage()},
       theme: FluentThemeData.light().copyWith(
         typography: Typography.raw(
-          display: const TextStyle(fontSize: 115.2),
-          titleLarge: const TextStyle(fontSize: 48),
-          title: const TextStyle(fontSize: 38.4),
-          subtitle: const TextStyle(fontSize: 28.8),
-          bodyLarge: const TextStyle(fontSize: 21.6),
-          body: const TextStyle(fontSize: 16.8),
+          display: const TextStyle(fontSize: 115.2, color: Colors.black),
+          titleLarge: const TextStyle(fontSize: 48, color: Colors.black),
+          title: const TextStyle(fontSize: 38.4, color: Colors.black),
+          subtitle: const TextStyle(fontSize: 28.8, color: Colors.black),
+          bodyLarge: const TextStyle(fontSize: 21.6, color: Colors.black),
+          body: const TextStyle(fontSize: 16.8, color: Colors.black),
           bodyStrong: const TextStyle(
             fontSize: 16.8,
             fontWeight: FontWeight.bold,
+            color: Colors.black,
           ),
-          caption: const TextStyle(fontSize: 14.4),
+          caption: const TextStyle(fontSize: 14.4, color: Colors.black),
         ),
-        iconTheme: const IconThemeData(size: 28.8),
+        iconTheme: const IconThemeData(size: 28.8, color: Colors.black),
       ),
       darkTheme: FluentThemeData.dark().copyWith(
         typography: Typography.raw(
-          display: const TextStyle(fontSize: 115.2),
-          titleLarge: const TextStyle(fontSize: 48),
-          title: const TextStyle(fontSize: 38.4),
-          subtitle: const TextStyle(fontSize: 28.8),
-          bodyLarge: const TextStyle(fontSize: 21.6),
-          body: const TextStyle(fontSize: 16.8),
+          display: const TextStyle(fontSize: 115.2, color: Colors.white),
+          titleLarge: const TextStyle(fontSize: 48, color: Colors.white),
+          title: const TextStyle(fontSize: 38.4, color: Colors.white),
+          subtitle: const TextStyle(fontSize: 28.8, color: Colors.white),
+          bodyLarge: const TextStyle(fontSize: 21.6, color: Colors.white),
+          body: const TextStyle(fontSize: 16.8, color: Colors.white),
           bodyStrong: const TextStyle(
             fontSize: 16.8,
             fontWeight: FontWeight.bold,
+            color: Colors.white,
           ),
-          caption: const TextStyle(fontSize: 14.4),
+          caption: const TextStyle(fontSize: 14.4, color: Colors.white),
         ),
-        iconTheme: const IconThemeData(size: 28.8),
+        iconTheme: const IconThemeData(size: 28.8, color: Colors.white),
       ),
       themeMode: ThemeMode.system,
       home: Builder(
@@ -93,7 +95,9 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
     super.initState();
-    _checkForUpdates();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkForUpdates();
+    });
   }
 
   @override
