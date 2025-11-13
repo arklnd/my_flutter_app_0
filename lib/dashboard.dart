@@ -1,7 +1,20 @@
 import 'package:fluent_ui/fluent_ui.dart';
 
-class DashboardPage extends StatelessWidget {
+class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
+
+  @override
+  State<DashboardPage> createState() => _DashboardPageState();
+}
+
+class _DashboardPageState extends State<DashboardPage> {
+  late String email;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    email = ModalRoute.of(context)!.settings.arguments as String? ?? 'User';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -17,10 +30,7 @@ class DashboardPage extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Text(
-                'Welcome to the Dashboard!',
-                style: TextStyle(fontSize: 24),
-              ),
+              Text('Welcome, $email!', style: TextStyle(fontSize: 24)),
               const SizedBox(height: 20),
               Card(
                 child: Padding(

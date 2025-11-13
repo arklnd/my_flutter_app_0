@@ -143,7 +143,9 @@ class _LoginPageState extends State<LoginPage> {
 
                 FilledButton(
                   onPressed: () {
-                    Navigator.of(context).pushNamed('/dashboard');
+                    Navigator.of(
+                      context,
+                    ).pushNamed('/dashboard', arguments: _emailController.text);
                   },
 
                   style: ButtonStyle(
@@ -181,7 +183,10 @@ class _LoginPageState extends State<LoginPage> {
           context: context,
           builder:
               (context) => ContentDialog(
-                title: const Text('Updates Unavailable'),
+                title: const Text(
+                  'Updates Unavailable',
+                  style: TextStyle(fontSize: 18),
+                ),
                 content: const Text(
                   'Updates are only available on Android devices.',
                 ),
@@ -214,7 +219,10 @@ class _LoginPageState extends State<LoginPage> {
           context: context,
           builder:
               (context) => ContentDialog(
-                title: const Text('Permission Required'),
+                title: const Text(
+                  'Permission Required',
+                  style: TextStyle(fontSize: 18),
+                ),
                 content: const Text(
                   'Storage permission is required to download updates.',
                 ),
@@ -268,7 +276,10 @@ class _LoginPageState extends State<LoginPage> {
               context: context,
               builder:
                   (context) => ContentDialog(
-                    title: const Text('Update Downloaded'),
+                    title: const Text(
+                      'Update Downloaded',
+                      style: TextStyle(fontSize: 18),
+                    ),
                     content: Text('Latest APK downloaded to $filePath'),
                     actions: [
                       Button(
@@ -285,7 +296,10 @@ class _LoginPageState extends State<LoginPage> {
               context: context,
               builder:
                   (context) => ContentDialog(
-                    title: const Text('No Updates'),
+                    title: const Text(
+                      'No Updates',
+                      style: TextStyle(fontSize: 18),
+                    ),
                     content: const Text('No updates are currently available.'),
                     actions: [
                       Button(
@@ -303,7 +317,10 @@ class _LoginPageState extends State<LoginPage> {
             context: context,
             builder:
                 (context) => ContentDialog(
-                  title: const Text('Check Failed'),
+                  title: const Text(
+                    'Check Failed',
+                    style: TextStyle(fontSize: 18),
+                  ),
                   content: const Text(
                     'Failed to check for updates. Please try again later.',
                   ),
@@ -323,7 +340,7 @@ class _LoginPageState extends State<LoginPage> {
           context: context,
           builder:
               (context) => ContentDialog(
-                title: const Text('Error'),
+                title: const Text('Error', style: TextStyle(fontSize: 18)),
                 content: Text('Failed to check for updates: $e'),
                 actions: [
                   Button(
