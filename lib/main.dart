@@ -1,5 +1,10 @@
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/services.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:dio/dio.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 void main() {
   SystemChrome.setSystemUIOverlayStyle(
@@ -39,6 +44,12 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _passwordController = TextEditingController();
   final FocusNode _emailFocus = FocusNode();
   final FocusNode _passwordFocus = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    _checkForUpdates();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -105,5 +116,61 @@ class _LoginPageState extends State<LoginPage> {
         ),
       ),
     );
+  }
+
+  Future<void> _checkForUpdates() async {
+    // Request storage permission
+    var status = await Permission.storage.request();
+    if (!status.isGranted) {
+      // Handle permission denied
+      return;
+    }
+
+    try {
+      final response = await http.get(
+        Uri.parse(
+          'https://api.github.com/repos/arklnd/my_flutter_app_0/releases/latest',
+        ),
+      );
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final assets = data['assets'] as List;
+        // Find APK assets
+        final apkAssets =
+            assets.where((asset) => asset['name'].endsWith('.apk')).toList();
+        if (apkAssets.isNotEmpty) {
+          // Sort by name descending to get the latest (assuming names include commit hash)
+          apkAssets.sort((a, b) => b['name'].compareTo(a['name']));
+          final latestApk = apkAssets.first;
+          final downloadUrl = latestApk['browser_download_url'];
+          final fileName = latestApk['name'];
+
+          // Download
+          final dir = await getExternalStorageDirectory();
+          final filePath = '${dir!.path}/$fileName';
+          await Dio().download(downloadUrl, filePath);
+
+          // Show success dialog
+          if (mounted) {
+            showDialog(
+              context: context,
+              builder:
+                  (context) => ContentDialog(
+                    title: const Text('Update Downloaded'),
+                    content: Text('Latest APK downloaded to $filePath'),
+                    actions: [
+                      Button(
+                        child: const Text('OK'),
+                        onPressed: () => Navigator.of(context).pop(),
+                      ),
+                    ],
+                  ),
+            );
+          }
+        }
+      }
+    } catch (e) {
+      // Handle error
+    }
   }
 }
