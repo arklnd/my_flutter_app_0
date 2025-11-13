@@ -22,11 +22,19 @@ jobs:
     - name: Get dependencies
       run: flutter pub get
 
+    - name: Get version
+      run: |
+        VERSION=$(grep '^version:' pubspec.yaml | sed 's/version: //' | sed 's/+.*//')
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
+
     - name: Build APK
-      run: flutter build apk --release
+      run: flutter build apk --release --build-name ${{ env.VERSION }}
+
+    - name: Rename APK
+      run: mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/app-release-${{ env.VERSION }}.apk
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
-        name: app-release
-        path: build/app/outputs/flutter-apk/app-release.apk
+        name: app-release-${{ env.VERSION }}
+        path: build/app/outputs/flutter-apk/app-release-${{ env.VERSION }}.apk
