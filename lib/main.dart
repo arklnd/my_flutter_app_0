@@ -170,6 +170,18 @@ class _LoginPageState extends State<LoginPage> {
 
                   child: const Text('Login'),
                 ),
+
+                const SizedBox(height: 20),
+
+                FilledButton(
+                  onPressed: _checkForUpdates,
+                  style: ButtonStyle(
+                    padding: WidgetStateProperty.all(
+                      const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                    ),
+                  ),
+                  child: const Text('Check for Updates'),
+                ),
               ],
             ),
           ),
@@ -179,12 +191,49 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> _checkForUpdates() async {
-    if (!Platform.isAndroid) return;
+    if (!Platform.isAndroid) {
+      if (mounted) {
+        showDialog(
+          context: context,
+          builder:
+              (context) => ContentDialog(
+                title: const Text('Updates Unavailable'),
+                content: const Text(
+                  'Updates are only available on Android devices.',
+                ),
+                actions: [
+                  Button(
+                    child: const Text('OK'),
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
+                ],
+              ),
+        );
+      }
+      return;
+    }
 
     // Request storage permission
     var status = await Permission.storage.request();
     if (!status.isGranted) {
-      // Handle permission denied
+      if (mounted) {
+        showDialog(
+          context: context,
+          builder:
+              (context) => ContentDialog(
+                title: const Text('Permission Required'),
+                content: const Text(
+                  'Storage permission is required to download updates.',
+                ),
+                actions: [
+                  Button(
+                    child: const Text('OK'),
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
+                ],
+              ),
+        );
+      }
       return;
     }
 
@@ -229,10 +278,61 @@ class _LoginPageState extends State<LoginPage> {
                   ),
             );
           }
+        } else {
+          if (mounted) {
+            showDialog(
+              context: context,
+              builder:
+                  (context) => ContentDialog(
+                    title: const Text('No Updates'),
+                    content: const Text('No updates are currently available.'),
+                    actions: [
+                      Button(
+                        child: const Text('OK'),
+                        onPressed: () => Navigator.of(context).pop(),
+                      ),
+                    ],
+                  ),
+            );
+          }
+        }
+      } else {
+        if (mounted) {
+          showDialog(
+            context: context,
+            builder:
+                (context) => ContentDialog(
+                  title: const Text('Check Failed'),
+                  content: const Text(
+                    'Failed to check for updates. Please try again later.',
+                  ),
+                  actions: [
+                    Button(
+                      child: const Text('OK'),
+                      onPressed: () => Navigator.of(context).pop(),
+                    ),
+                  ],
+                ),
+          );
         }
       }
     } catch (e) {
-      // Handle error
+      if (mounted) {
+        showDialog(
+          context: context,
+          builder:
+              (context) => ContentDialog(
+                title: const Text('Error'),
+                content: Text('Failed to check for updates: $e'),
+                actions: [
+                  Button(
+                    child: const Text('OK'),
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
+                ],
+              ),
+        );
+      }
     }
   }
 }
