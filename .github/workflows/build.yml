@@ -51,22 +51,25 @@ jobs:
         mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/${APP_NAME_CLEAN}-${{ steps.get_version.outputs.version_with_hash }}_${{ github.run_number }}.apk
         echo "app_name_clean=$APP_NAME_CLEAN" >> $GITHUB_OUTPUT
 
-    - name: ✔️ Check if tag exists
+    - name: ✔️ Check if tag exists and get release body
       id: check_tag
       run: |
         if gh release view v${{ steps.get_version.outputs.version }} --json tagName > /dev/null 2>&1; then
           echo "exists=true" >> $GITHUB_OUTPUT
+          BODY=$(gh release view v${{ steps.get_version.outputs.version }} --json body -q .body)
+          echo "body=$BODY" >> $GITHUB_OUTPUT
         else
           echo "exists=false" >> $GITHUB_OUTPUT
         fi
 
-    - name: 🚀 Create GitHub Release
+    - name:  Create GitHub Release
       if: github.event_name == 'push'
       uses: softprops/action-gh-release@v2
       with:
         tag_name: v${{ steps.get_version.outputs.version }}
         name: Release v${{ steps.get_version.outputs.version }}
         files: build/app/outputs/flutter-apk/${{ steps.rename_apk.outputs.app_name_clean }}-${{ steps.get_version.outputs.version_with_hash }}_${{ github.run_number }}.apk
+        body: ${{ steps.check_tag.outputs.body }}
         generate_release_notes: ${{ steps.check_tag.outputs.exists == 'false' }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
