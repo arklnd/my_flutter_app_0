@@ -7,6 +7,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'dart:io';
+import 'dashboard.dart';
 
 void main() {
   runApp(const MyApp());
@@ -19,6 +20,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return FluentApp(
       title: 'Flutter Demo',
+      routes: {'/dashboard': (context) => const DashboardPage()},
       theme: FluentThemeData.light().copyWith(
         typography: Typography.raw(
           display: const TextStyle(fontSize: 115.2),
@@ -141,26 +143,7 @@ class _LoginPageState extends State<LoginPage> {
 
                 FilledButton(
                   onPressed: () {
-                    // Use Fluent UI's ContentDialog
-
-                    showDialog(
-                      context: context,
-
-                      builder:
-                          (context) => ContentDialog(
-                            title: const Text('Welcome'),
-
-                            content: Text('Welcome, ${_emailController.text}!'),
-
-                            actions: [
-                              Button(
-                                child: const Text('OK'),
-
-                                onPressed: () => Navigator.of(context).pop(),
-                              ),
-                            ],
-                          ),
-                    );
+                    Navigator.of(context).pushNamed('/dashboard');
                   },
 
                   style: ButtonStyle(
