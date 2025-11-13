@@ -35,6 +35,7 @@ jobs:
       run: mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/app-release-${{ steps.get_version.outputs.version }}.apk
 
     - name: Create GitHub Release
+      if: github.event_name == 'push'
       uses: softprops/action-gh-release@v1
       with:
         tag_name: v${{ steps.get_version.outputs.version }}
