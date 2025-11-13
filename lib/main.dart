@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'dart:io';
 
 void main() {
@@ -214,7 +215,16 @@ class _LoginPageState extends State<LoginPage> {
     }
 
     // Request storage permission
-    var status = await Permission.storage.request();
+    Permission permission;
+    if (Platform.isAndroid) {
+      final androidInfo = await DeviceInfoPlugin().androidInfo;
+      final sdkInt = androidInfo.version.sdkInt;
+      permission =
+          sdkInt >= 30 ? Permission.manageExternalStorage : Permission.storage;
+    } else {
+      permission = Permission.storage;
+    }
+    var status = await permission.request();
     if (!status.isGranted) {
       if (mounted) {
         showDialog(
@@ -226,6 +236,14 @@ class _LoginPageState extends State<LoginPage> {
                   'Storage permission is required to download updates.',
                 ),
                 actions: [
+                  if (status.isPermanentlyDenied)
+                    Button(
+                      child: const Text('Open Settings'),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        openAppSettings();
+                      },
+                    ),
                   Button(
                     child: const Text('OK'),
                     onPressed: () => Navigator.of(context).pop(),
