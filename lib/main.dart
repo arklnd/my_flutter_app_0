@@ -1,10 +1,11 @@
 import 'package:fluent_ui/fluent_ui.dart';
+import 'package:flutter/material.dart' as material;
 import 'package:flutter/services.dart';
 
 void main() {
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent,
+      statusBarColor: material.Colors.transparent,
       statusBarIconBrightness: Brightness.dark,
       statusBarBrightness: Brightness.light,
     ),
@@ -60,8 +61,19 @@ class _LoginPageState extends State<LoginPage> {
                 FilledButton(
                   onPressed: () {
                     // Handle login
-                    print(
-                      'Email: ${_emailController.text}, Password: ${_passwordController.text}',
+                    material.showDialog(
+                      context: context,
+                      builder:
+                          (context) => material.AlertDialog(
+                            title: const Text('Welcome'),
+                            content: Text('Welcome, ${_emailController.text}!'),
+                            actions: [
+                              material.TextButton(
+                                onPressed: () => Navigator.of(context).pop(),
+                                child: const Text('OK'),
+                              ),
+                            ],
+                          ),
                     );
                   },
                   child: Text('Login'),
