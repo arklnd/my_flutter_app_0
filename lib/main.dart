@@ -18,8 +18,38 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return FluentApp(
       title: 'Flutter Demo',
-      theme: FluentThemeData(),
-      darkTheme: FluentThemeData.dark(),
+      theme: FluentThemeData.light().copyWith(
+        typography: Typography.raw(
+          display: const TextStyle(fontSize: 115.2),
+          titleLarge: const TextStyle(fontSize: 48),
+          title: const TextStyle(fontSize: 38.4),
+          subtitle: const TextStyle(fontSize: 28.8),
+          bodyLarge: const TextStyle(fontSize: 21.6),
+          body: const TextStyle(fontSize: 16.8),
+          bodyStrong: const TextStyle(
+            fontSize: 16.8,
+            fontWeight: FontWeight.bold,
+          ),
+          caption: const TextStyle(fontSize: 14.4),
+        ),
+        iconTheme: const IconThemeData(size: 28.8),
+      ),
+      darkTheme: FluentThemeData.dark().copyWith(
+        typography: Typography.raw(
+          display: const TextStyle(fontSize: 115.2),
+          titleLarge: const TextStyle(fontSize: 48),
+          title: const TextStyle(fontSize: 38.4),
+          subtitle: const TextStyle(fontSize: 28.8),
+          bodyLarge: const TextStyle(fontSize: 21.6),
+          body: const TextStyle(fontSize: 16.8),
+          bodyStrong: const TextStyle(
+            fontSize: 16.8,
+            fontWeight: FontWeight.bold,
+          ),
+          caption: const TextStyle(fontSize: 14.4),
+        ),
+        iconTheme: const IconThemeData(size: 28.8),
+      ),
       themeMode: ThemeMode.system,
       home: Builder(
         builder: (context) {
@@ -66,14 +96,18 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return NavigationView(
-      appBar: NavigationAppBar(title: const Text('Login to dashboard')),
+      appBar: NavigationAppBar(
+        title: const Text('Login to dashboard', style: TextStyle(fontSize: 20)),
+        automaticallyImplyLeading: false,
+        height: 80,
+      ),
 
       content: Center(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(20.0),
 
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 400),
+            constraints: const BoxConstraints(maxWidth: 450),
 
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -83,18 +117,26 @@ class _LoginPageState extends State<LoginPage> {
                   controller: _emailController,
                   focusNode: _emailFocus,
                   placeholder: 'Email',
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 12,
+                    horizontal: 16,
+                  ),
                 ),
 
-                const SizedBox(height: 16),
+                const SizedBox(height: 20),
 
                 TextBox(
                   controller: _passwordController,
                   focusNode: _passwordFocus,
                   placeholder: 'Password',
                   obscureText: true,
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 12,
+                    horizontal: 16,
+                  ),
                 ),
 
-                const SizedBox(height: 16),
+                const SizedBox(height: 20),
 
                 FilledButton(
                   onPressed: () {
@@ -119,6 +161,12 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                     );
                   },
+
+                  style: ButtonStyle(
+                    padding: WidgetStateProperty.all(
+                      const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                    ),
+                  ),
 
                   child: const Text('Login'),
                 ),
