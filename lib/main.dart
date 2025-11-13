@@ -1,27 +1,19 @@
 import 'package:fluent_ui/fluent_ui.dart';
-import 'package:flutter/material.dart' as material;
-import 'package:flutter/services.dart';
 
 void main() {
-  SystemChrome.setSystemUIOverlayStyle(
-    const SystemUiOverlayStyle(
-      statusBarColor: material.Colors.transparent,
-      statusBarIconBrightness: Brightness.dark,
-      statusBarBrightness: Brightness.light,
-    ),
-  );
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return FluentApp(
       title: 'Flutter Demo',
+
       theme: FluentThemeData(),
+
       home: const LoginPage(),
     );
   }
@@ -37,46 +29,67 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final FocusNode _emailFocus = FocusNode();
+  final FocusNode _passwordFocus = FocusNode();
 
   @override
   Widget build(BuildContext context) {
     return NavigationView(
-      appBar: NavigationAppBar(title: Text('Login')),
+      appBar: NavigationAppBar(title: const Text('Login')),
+
       content: Center(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
+
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 400),
+
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
+
               children: [
-                TextBox(controller: _emailController, placeholder: 'Email'),
-                SizedBox(height: 16),
+                TextBox(
+                  controller: _emailController,
+                  focusNode: _emailFocus,
+                  placeholder: 'Email',
+                ),
+
+                const SizedBox(height: 16),
+
                 TextBox(
                   controller: _passwordController,
+                  focusNode: _passwordFocus,
                   placeholder: 'Password',
                   obscureText: true,
                 ),
-                SizedBox(height: 16),
+
+                const SizedBox(height: 16),
+
                 FilledButton(
                   onPressed: () {
-                    // Handle login
-                    material.showDialog(
+                    // Use Fluent UI's ContentDialog
+
+                    showDialog(
                       context: context,
+
                       builder:
-                          (context) => material.AlertDialog(
+                          (context) => ContentDialog(
                             title: const Text('Welcome'),
+
                             content: Text('Welcome, ${_emailController.text}!'),
+
                             actions: [
-                              material.TextButton(
-                                onPressed: () => Navigator.of(context).pop(),
+                              Button(
                                 child: const Text('OK'),
+
+                                onPressed: () => Navigator.of(context).pop(),
                               ),
                             ],
                           ),
                     );
                   },
-                  child: Text('Login'),
+
+                  child: const Text('Login'),
                 ),
               ],
             ),
