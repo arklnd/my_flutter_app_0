@@ -30,13 +30,14 @@ jobs:
         VERSION=$(grep '^version:' pubspec.yaml | sed 's/version: //' | sed 's/+.*//')
         COMMIT_HASH=$(git rev-parse --short HEAD)
         VERSION_WITH_HASH="${VERSION}-${COMMIT_HASH}"
-        echo "version=$VERSION_WITH_HASH" >> $GITHUB_OUTPUT
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        echo "version_with_hash=$VERSION_WITH_HASH" >> $GITHUB_OUTPUT
 
     - name: 📱 Build APK
-      run: flutter build apk --release --build-name ${{ steps.get_version.outputs.version }} --build-number ${{ github.run_number }}
+      run: flutter build apk --release --build-name ${{ steps.get_version.outputs.version_with_hash }} --build-number ${{ github.run_number }}
 
     - name: 📝 Rename APK
-      run: mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/app-release-${{ steps.get_version.outputs.version }}.apk
+      run: mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/app-release-${{ steps.get_version.outputs.version_with_hash }}.apk
 
     - name: 🚀 Create GitHub Release
       if: github.event_name == 'push'
@@ -44,7 +45,7 @@ jobs:
       with:
         tag_name: v${{ steps.get_version.outputs.version }}
         name: Release v${{ steps.get_version.outputs.version }}
-        files: build/app/outputs/flutter-apk/app-release-${{ steps.get_version.outputs.version }}.apk
+        files: build/app/outputs/flutter-apk/app-release-${{ steps.get_version.outputs.version_with_hash }}.apk
         generate_release_notes: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
