@@ -45,7 +45,7 @@ jobs:
       run: flutter build apk --release --build-name ${{ steps.get_version.outputs.version_with_hash }} --build-number ${{ github.run_number }}
 
     - name: 📝 Rename APK
-      run: mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/app-release-${{ steps.get_version.outputs.version_with_hash }}.apk
+      run: mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/app-release-${{ steps.get_version.outputs.version_with_hash }}_${{ github.run_number }}.apk
 
     - name: 🚀 Create GitHub Release
       if: github.event_name == 'push'
@@ -53,7 +53,7 @@ jobs:
       with:
         tag_name: v${{ steps.get_version.outputs.version }}
         name: Release v${{ steps.get_version.outputs.version }}
-        files: build/app/outputs/flutter-apk/app-release-${{ steps.get_version.outputs.version_with_hash }}.apk
+        files: build/app/outputs/flutter-apk/app-release-${{ steps.get_version.outputs.version_with_hash }}_${{ github.run_number }}.apk
         generate_release_notes: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
