@@ -268,8 +268,12 @@ class _LoginPageState extends State<LoginPage> {
         final apkAssets =
             assets.where((asset) => asset['name'].endsWith('.apk')).toList();
         if (apkAssets.isNotEmpty) {
-          // Sort by name descending to get the latest (assuming names include commit hash)
-          apkAssets.sort((a, b) => b['name'].compareTo(a['name']));
+          // Sort by created_at descending to get the latest uploaded asset
+          apkAssets.sort(
+            (a, b) => DateTime.parse(
+              b['created_at'],
+            ).compareTo(DateTime.parse(a['created_at'])),
+          );
           final latestApk = apkAssets.first;
           final downloadUrl = latestApk['browser_download_url'];
           final fileName = latestApk['name'];
