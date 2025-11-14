@@ -8,6 +8,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'dart:io';
 import 'package:open_file/open_file.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'dashboard.dart';
 
 void main() {
@@ -276,6 +277,41 @@ class _LoginPageState extends State<LoginPage> {
             ).compareTo(DateTime.parse(a['created_at'])),
           );
           final latestApk = apkAssets.first;
+
+          // Check if already up to date
+          final packageInfo = await PackageInfo.fromPlatform();
+          final currentVersion = packageInfo.version;
+          final currentCommit = currentVersion.split('-').last;
+          final apkName = latestApk['name'];
+          final nameWithoutExt = apkName.replaceAll('.apk', '');
+          final lastDash = nameWithoutExt.lastIndexOf('-');
+          final commitPart = nameWithoutExt.substring(lastDash + 1);
+          final apkCommit = commitPart.split('_').first;
+          if (currentCommit == apkCommit) {
+            if (mounted) {
+              showDialog(
+                context: context,
+                builder:
+                    (context) => ContentDialog(
+                      title: const Text(
+                        'Already Up to Date',
+                        style: TextStyle(fontSize: 18),
+                      ),
+                      content: const Text(
+                        'You are already running the latest version.',
+                      ),
+                      actions: [
+                        Button(
+                          child: const Text('OK'),
+                          onPressed: () => Navigator.of(context).pop(),
+                        ),
+                      ],
+                    ),
+              );
+            }
+            return;
+          }
+
           final downloadUrl = latestApk['browser_download_url'];
           final fileName = latestApk['name'];
 
