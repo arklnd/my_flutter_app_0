@@ -9,7 +9,15 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'dart:io';
 import 'package:open_file/open_file.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:flutter/foundation.dart';
 import 'dashboard.dart';
+
+String _parseApkCommit(String apkName) {
+  final nameWithoutExt = apkName.replaceAll('.apk', '');
+  final lastDash = nameWithoutExt.lastIndexOf('-');
+  final commitPart = nameWithoutExt.substring(lastDash + 1);
+  return commitPart.split('_').first;
+}
 
 void main() {
   runApp(const MyApp());
@@ -264,7 +272,7 @@ class _LoginPageState extends State<LoginPage> {
         ),
       );
       if (response.statusCode == 200) {
-        final data = json.decode(response.body);
+        final data = await compute(jsonDecode, response.body);
         final assets = data['assets'] as List;
         // Find APK assets
         final apkAssets =
@@ -283,10 +291,10 @@ class _LoginPageState extends State<LoginPage> {
           final currentVersion = packageInfo.version;
           final currentCommit = currentVersion.split('-').last;
           final apkName = latestApk['name'];
-          final nameWithoutExt = apkName.replaceAll('.apk', '');
-          final lastDash = nameWithoutExt.lastIndexOf('-');
-          final commitPart = nameWithoutExt.substring(lastDash + 1);
-          final apkCommit = commitPart.split('_').first;
+          final apkCommit = await compute<String, String>(
+            _parseApkCommit,
+            apkName,
+          );
           if (currentCommit == apkCommit) {
             if (mounted) {
               showDialog(
