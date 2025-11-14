@@ -110,9 +110,9 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _checkForUpdates();
-    });
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   _checkForUpdates();
+    // });
   }
 
   @override
