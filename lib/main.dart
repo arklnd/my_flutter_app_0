@@ -7,6 +7,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'dart:io';
+import 'package:open_file/open_file.dart';
 import 'dashboard.dart';
 
 void main() {
@@ -283,7 +284,7 @@ class _LoginPageState extends State<LoginPage> {
           final filePath = '${dir!.path}/$fileName';
           await Dio().download(downloadUrl, filePath);
 
-          // Show success dialog
+          // Show success dialog with install option
           if (mounted) {
             showDialog(
               context: context,
@@ -293,11 +294,20 @@ class _LoginPageState extends State<LoginPage> {
                       'Update Downloaded',
                       style: TextStyle(fontSize: 18),
                     ),
-                    content: Text('Latest APK downloaded to $filePath'),
+                    content: Text(
+                      'Latest APK downloaded to $filePath. Would you like to install it now?',
+                    ),
                     actions: [
                       Button(
-                        child: const Text('OK'),
+                        child: const Text('Cancel'),
                         onPressed: () => Navigator.of(context).pop(),
+                      ),
+                      FilledButton(
+                        child: const Text('Install'),
+                        onPressed: () {
+                          OpenFile.open(filePath);
+                          Navigator.of(context).pop();
+                        },
                       ),
                     ],
                   ),
