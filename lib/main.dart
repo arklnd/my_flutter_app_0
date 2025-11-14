@@ -20,7 +20,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return FluentApp(
       title: 'Flutter Demo',
-      routes: {'/dashboard': (context) => const DashboardPage()},
+      routes: {
+        '/dashboard': (context) => const PageWrapper(child: DashboardPage()),
+      },
       theme: FluentThemeData.light().copyWith(
         typography: Typography.raw(
           display: const TextStyle(fontSize: 115.2, color: Colors.black),
@@ -56,25 +58,28 @@ class MyApp extends StatelessWidget {
         iconTheme: const IconThemeData(size: 28.8, color: Colors.white),
       ),
       themeMode: ThemeMode.system,
-      home: Builder(
-        builder: (context) {
-          final brightness = MediaQuery.of(context).platformBrightness;
-          return AnnotatedRegion<SystemUiOverlayStyle>(
-            value: SystemUiOverlayStyle(
-              statusBarColor: Colors.transparent,
-              statusBarIconBrightness:
-                  brightness == Brightness.dark
-                      ? Brightness.light
-                      : Brightness.dark,
-              statusBarBrightness:
-                  brightness == Brightness.dark
-                      ? Brightness.dark
-                      : Brightness.light,
-            ),
-            child: const LoginPage(),
-          );
-        },
+      home: const PageWrapper(child: LoginPage()),
+    );
+  }
+}
+
+class PageWrapper extends StatelessWidget {
+  final Widget child;
+
+  const PageWrapper({super.key, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    final brightness = MediaQuery.of(context).platformBrightness;
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness:
+            brightness == Brightness.dark ? Brightness.light : Brightness.dark,
+        statusBarBrightness:
+            brightness == Brightness.dark ? Brightness.dark : Brightness.light,
       ),
+      child: child,
     );
   }
 }
