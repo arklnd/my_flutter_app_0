@@ -1,4 +1,4 @@
-name: Build APK
+name: Build All Platforms
 
 on:
   push:
@@ -7,7 +7,20 @@ on:
     branches: [ master ]
 
 jobs:
-  build:
+  build-apk:
+    uses: ./.github/workflows/build-apk.yml
+    secrets: inherit
+
+  build-linux:
+    uses: ./.github/workflows/build-linux.yml
+    secrets: inherit
+
+  build-windows:
+    uses: ./.github/workflows/build-windows.yml
+    secrets: inherit
+
+  release:
+    needs: [build-apk, build-linux, build-windows]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -16,59 +29,46 @@ jobs:
     - name: 📥 Checkout code
       uses: actions/checkout@v4
 
-    - name: 🦋 Setup Flutter
-      uses: subosito/flutter-action@v2
-      with:
-        channel: 'stable'
-
-    - name: 📦 Get dependencies
-      run: flutter pub get
-
-    - name: 🔐 Setup signing
-      run: |
-        echo "storePassword=${{ secrets.STORE_PASSWORD }}" > android/key.properties
-        echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> android/key.properties
-        echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> android/key.properties
-        echo "storeFile=release.keystore" >> android/key.properties
-        echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > android/app/release.keystore
-
-    - name: 🏷️ Get version
-      id: get_version
+    - name: 📥 Get version
+      id: version
       run: |
         VERSION=$(grep '^version:' pubspec.yaml | sed 's/version: //' | sed 's/+.*//')
-        COMMIT_HASH=$(git rev-parse --short HEAD)
-        VERSION_WITH_HASH="${VERSION}-${COMMIT_HASH}"
         echo "version=$VERSION" >> $GITHUB_OUTPUT
-        echo "version_with_hash=$VERSION_WITH_HASH" >> $GITHUB_OUTPUT
 
-    - name: 📱 Build APK
-      run: flutter build apk --release --build-name ${{ steps.get_version.outputs.version_with_hash }} --build-number ${{ github.run_number }}
+    - name: 📦 Download all artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: artifacts/
 
-    - name: 📝 Rename APK
-      id: rename_apk
+    - name: 📝 Organize all artifacts
       run: |
-        APP_NAME_CLEAN=$(echo "${{ vars.APP_NAME }}" | tr ' ' '_')
-        mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/${APP_NAME_CLEAN}-${{ steps.get_version.outputs.version_with_hash }}_${{ github.run_number }}.apk
-        echo "app_name_clean=$APP_NAME_CLEAN" >> $GITHUB_OUTPUT
+        mkdir -p dist
+        cp -r artifacts/*/. dist/ || true
+        ls -lh dist/
 
     - name: ✔️ Check if tag exists and get release body
       id: check_tag
       run: |
-        if gh release view v${{ steps.get_version.outputs.version }} --json tagName > /dev/null 2>&1; then
+        if gh release view v${{ steps.version.outputs.version }} --json tagName > /dev/null 2>&1; then
           echo "exists=true" >> $GITHUB_OUTPUT
-          BODY=$(gh release view v${{ steps.get_version.outputs.version }} --json body -q .body)
-          echo "body=$BODY" >> $GITHUB_OUTPUT
+          BODY=$(gh release view v${{ steps.version.outputs.version }} --json body -q .body)
+          echo "body<<EOF" >> $GITHUB_OUTPUT
+          echo "$BODY" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
         else
           echo "exists=false" >> $GITHUB_OUTPUT
         fi
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    - name:  Create GitHub Release
+    - name: 📤 Create GitHub Release
       if: github.event_name == 'push'
       uses: softprops/action-gh-release@v2
       with:
-        tag_name: v${{ steps.get_version.outputs.version }}
-        name: Release v${{ steps.get_version.outputs.version }}
-        files: build/app/outputs/flutter-apk/${{ steps.rename_apk.outputs.app_name_clean }}-${{ steps.get_version.outputs.version_with_hash }}_${{ github.run_number }}.apk
+        tag_name: v${{ steps.version.outputs.version }}
+        name: Release v${{ steps.version.outputs.version }}
+        files: |
+          dist/*
         body: ${{ steps.check_tag.outputs.body }}
         generate_release_notes: ${{ steps.check_tag.outputs.exists == 'false' }}
       env:

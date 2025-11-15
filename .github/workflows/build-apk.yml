@@ -1,0 +1,63 @@
+name: Build APK
+
+on:
+  workflow_call:
+    outputs:
+      apk_path:
+        description: "Path to built APK file"
+        value: ${{ jobs.build-apk.outputs.apk_path }}
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+    outputs:
+      apk_path: ${{ steps.organize.outputs.apk_path }}
+
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+
+    - name: 🦋 Setup Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        channel: 'stable'
+
+    - name: 📦 Get dependencies
+      run: flutter pub get
+
+    - name: 🔐 Setup signing
+      run: |
+        echo "storePassword=${{ secrets.STORE_PASSWORD }}" > android/key.properties
+        echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> android/key.properties
+        echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> android/key.properties
+        echo "storeFile=release.keystore" >> android/key.properties
+        echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > android/app/release.keystore
+
+    - name: 🏷️ Get version
+      id: get_version
+      run: |
+        VERSION=$(grep '^version:' pubspec.yaml | sed 's/version: //' | sed 's/+.*//')
+        COMMIT_HASH=$(git rev-parse --short HEAD)
+        VERSION_WITH_HASH="${VERSION}-${COMMIT_HASH}"
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        echo "version_with_hash=$VERSION_WITH_HASH" >> $GITHUB_OUTPUT
+
+    - name: 📱 Build APK
+      run: flutter build apk --release --build-name ${{ steps.get_version.outputs.version_with_hash }} --build-number ${{ github.run_number }}
+
+    - name: 📝 Organize Android outputs
+      id: organize
+      run: |
+        APP_NAME_CLEAN=$(echo "${{ vars.APP_NAME }}" | tr ' ' '_')
+        mkdir -p dist
+        mv build/app/outputs/flutter-apk/app-release.apk dist/${APP_NAME_CLEAN}-${{ steps.get_version.outputs.version_with_hash }}_${{ github.run_number }}.apk
+        echo "app_name_clean=$APP_NAME_CLEAN" >> $GITHUB_OUTPUT
+        echo "apk_path=dist/${APP_NAME_CLEAN}-${{ steps.get_version.outputs.version_with_hash }}_${{ github.run_number }}.apk" >> $GITHUB_OUTPUT
+        ls -lh dist/
+
+    - name: 📤 Upload APK artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: android-artifacts
+        path: dist/
+        retention-days: 1
